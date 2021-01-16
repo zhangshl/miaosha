@@ -24,6 +24,7 @@ public class SkOrderServiceImpl implements SkOrderService {
 
     @Override
     public int insert(SkOrder record) {
+        //TODO 分库分表
         return skOrderMapper.insert(record);
     }
 

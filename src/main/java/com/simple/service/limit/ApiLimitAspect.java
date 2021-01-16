@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class ApiLimitAspect {
     private Logger logger = LoggerFactory.getLogger(ApiLimitAspect.class);
 
-	RateLimiter rateLimiter = RateLimiter.create(10);
+	RateLimiter rateLimiter = RateLimiter.create(1000);
 
 	@Pointcut("@annotation(com.simple.service.limit.ApiLimit)")
 	public void apiLimit() {

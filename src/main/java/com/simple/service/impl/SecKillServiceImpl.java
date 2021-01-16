@@ -82,7 +82,7 @@ public class SecKillServiceImpl implements SecKillService, InitializingBean {
         if (SecKillUtils.secKillFlag.get(id) != null){
             return 0;
         }
-        //生成订单
+        //生成订单，orderId在线上需要使用分布式ID
         SkOrder skOrder = SkOrder.builder().orderId(count.getAndIncrement()).goodsId(id).userId(123L).build();
         Message<SkOrder> message = MessageBuilder.withPayload(skOrder).build();
         //tx-order，主题，随便取
