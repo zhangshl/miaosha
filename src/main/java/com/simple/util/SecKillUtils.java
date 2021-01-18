@@ -1,4 +1,4 @@
-package com.simple.service.util;
+package com.simple.util;
 
 import java.util.HashMap;
 import java.util.Map;

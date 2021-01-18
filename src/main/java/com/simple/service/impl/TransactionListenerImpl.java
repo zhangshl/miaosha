@@ -3,13 +3,13 @@ package com.simple.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.simple.dao.domain.SkOrder;
 import com.simple.service.SkOrderService;
-import com.simple.service.util.SecKillUtils;
 import org.apache.rocketmq.spring.annotation.RocketMQTransactionListener;
 import org.apache.rocketmq.spring.core.RocketMQLocalTransactionListener;
 import org.apache.rocketmq.spring.core.RocketMQLocalTransactionState;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
+import com.simple.util.SecKillUtils;
 
 /**
  * @Author: zhangshaolong001
