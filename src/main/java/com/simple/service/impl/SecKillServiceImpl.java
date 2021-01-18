@@ -1,14 +1,14 @@
 package com.simple.service.impl;
 
 import com.simple.dao.domain.SkOrder;
+import com.simple.enums.ResultEnum;
 import com.simple.service.SecKillService;
+import com.simple.service.SkOrderService;
 import com.simple.util.SecKillUtils;
-import org.apache.rocketmq.spring.core.RocketMQTemplate;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -20,8 +20,13 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SecKillServiceImpl implements SecKillService {
     /** 自增ID，分布式环境使用分布式ID */
     private AtomicLong count= new AtomicLong();
-    @Resource
-    private RocketMQTemplate rocketMQTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
+
+    @Autowired
+    private SkOrderService skOrderService;
+
 
     /**
      * 秒杀实现
@@ -32,14 +37,26 @@ public class SecKillServiceImpl implements SecKillService {
     @Override
     public int seckill(Long id, int number) {
         if (SecKillUtils.secKillFlag.get(id) != null){
-            return 0;
+            return ResultEnum.FAIL.getCode();
         }
         //生成订单，orderId在线上需要使用分布式ID
         SkOrder skOrder = SkOrder.builder().orderId(count.getAndIncrement()).goodsId(id).userId(123L).build();
-        Message<SkOrder> message = MessageBuilder.withPayload(skOrder).build();
-        //tx-order，主题，随便取
-        rocketMQTemplate.sendMessageInTransaction("tx-order", message, null);
+        long stock = redissonClient.getAtomicLong(String.valueOf(skOrder.getGoodsId())).decrementAndGet();
+        if (stock<0){
+            //秒杀结束标志
+            SecKillUtils.secKillFlag.put(skOrder.getGoodsId(), false);
+            redissonClient.getAtomicLong(String.valueOf(skOrder.getGoodsId())).incrementAndGet();
+            return ResultEnum.FAIL.getCode();
+        }
+        //若有多个本地改库操作，需要使用事务
+        try {
+            int result = skOrderService.insert(skOrder);
+        }catch (Exception e){
+            //插入订单失败，回滚库存
+            redissonClient.getAtomicLong(String.valueOf(skOrder.getGoodsId())).incrementAndGet();
+            return ResultEnum.FAIL.getCode();
+        }
 
-        return 1;
+        return ResultEnum.SUCCESS.getCode();
     }
 }
