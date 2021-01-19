@@ -26,7 +26,7 @@ public class ApiLimitAspect {
 	@Around("apiLimit()")
 	public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
 		if(!rateLimiter.tryAcquire(1, 10, TimeUnit.MILLISECONDS)){
-			return SkGoods.builder().build();
+			return "秒杀失败";
 		}
 		return joinPoint.proceed();
 	}

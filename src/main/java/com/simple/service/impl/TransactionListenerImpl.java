@@ -25,7 +25,7 @@ public class TransactionListenerImpl implements RocketMQLocalTransactionListener
     private SkOrderService skOrderService;
 
     /**
-     * 本地事务执行
+     * 本地事务执行：经本地压测，单节点事务消息tps为2600左右，可通过分布式集群模式提高性能
      * @param message
      * @param o
      * @return

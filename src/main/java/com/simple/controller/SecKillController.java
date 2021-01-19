@@ -24,7 +24,7 @@ public class SecKillController {
      * @param id
      * @return
      */
-    @ApiLimit
+//    @ApiLimit
     @RequestMapping("/secKill")
     @ResponseBody
     public String secKill(@Param("id") Long id) {
